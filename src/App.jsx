@@ -31,6 +31,9 @@ function SearchBar() {
 
 function ProductTable() {
   return <>
+    PRODUCTS.forEach {
+
+    }
     <ProductCategoryRow product/>
     <ProductRow product/>
   </>
