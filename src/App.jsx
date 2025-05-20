@@ -1,9 +1,8 @@
-import { Fragment } from "react";
 import { useState } from "react";
-import Checkbox from "./components/checkbox";
-import Input from "./components/input";
-import ProductCategoryRow from "./components/productCategoryRow";
-import ProductRow from "./components/productRow";
+import {Checkbox} from "./components/Checkbox";
+import {Input} from "./components/Input";
+import {ProductCategoryRow} from "./components/ProductCategoryRow";
+import {ProductRow} from "./components/ProductRow";
 
 const PRODUCTS = [
   { category: "Fruits", price: "$1", stocked: true, name: "Apple" },
@@ -16,40 +15,65 @@ const PRODUCTS = [
 
 
 function App() {
-  return <>
-    <SearchBar/>
-    <ProductTable/>
-  </>
-}
 
-function SearchBar() {
-  return <>
-    <Input/>
-    <Checkbox/>
-  </>
-}
+  const [showStockedOnly, setShowStockedOnly] = useState(false)
+  const [search, setSearch] = useState('')
 
-function ProductTable() {
-  return <>
-    PRODUCTS.forEach {
-
+  const visibleProducts = PRODUCTS.filter(product => {
+    if (showStockedOnly && !product.stocked || search && !product.name.includes(search)) {
+      return false
     }
-    <ProductCategoryRow product/>
-    <ProductRow product/>
-  </>
+    return true
+  })
+
+  return <div>
+    <SearchBar
+      search={search}
+      onSearchChange={setSearch}
+      showStockedOnly={showStockedOnly}
+      onStockedOnlyChange={setShowStockedOnly} />
+    <ProductTable products={visibleProducts}/>
+  </div>
 }
 
-function Counter() {
-  const [count, setCount] = useState(0)
+function SearchBar({showStockedOnly, onStockedOnlyChange, search, onSearchChange}) {
+  return <div>
+    <Input
+      value={search}
+      onChange={onSearchChange}
+      placeholder="Rechercher ..."/>
+    <Checkbox
+      id="stocked"
+      checked={showStockedOnly}
+      onChange={onStockedOnlyChange}
+      label="N'affichez que les produits en stock"/>
+  </div>
+}
 
-  const increment = () => {
-    setCount(count + 1)
+function ProductTable({products}) {
+
+  const rows = []
+  let lastCategory = null
+
+  for (let product of products) {
+    if (product.category !== lastCategory) {
+      rows.push(<ProductCategoryRow key={product.category} name={product.category} />)
+    }
+    lastCategory = product.category
+    rows.push(<ProductRow key={product.name} product={product} />)
   }
 
-  return <>
-    <p>Nombre de ploucs : {count} </p>
-    <button onClick={increment}>+</button>
-  </>
+  return <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prix</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows}
+    </tbody>
+  </table>
 }
 
 export default App
